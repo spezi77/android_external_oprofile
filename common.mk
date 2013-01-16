@@ -38,12 +38,12 @@ HAVE_LIBBFD := false
 # missing includes for libbfd
 ifeq ($(findstring prebuilt,$(TARGET_TOOLS_PREFIX)),prebuilt)
 ifeq ($(TARGET_ARCH),arm)
-toolchain := prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/arm-linux-androideabi-4.6
+toolchain := prebuilts/gcc/$(HOST_PREBUILT_TAG)/arm/arm-linux-androideabi-4.7
 common_host_extra_flags := -DANDROID_TARGET_ARM
 endif
 
 ifeq ($(TARGET_ARCH),mips)
-toolchain := prebuilts/gcc/$(HOST_PREBUILT_TAG)/mips/mipsel-linux-android-4.6
+toolchain := prebuilts/gcc/$(HOST_PREBUILT_TAG)/mips/mipsel-linux-android-4.7
 common_host_extra_flags := -DANDROID_TARGET_MIPS
 endif
 
