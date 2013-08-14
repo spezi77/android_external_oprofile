@@ -206,14 +206,14 @@ int setup_device(void)
 {
     if (mkdir(OP_DRIVER_BASE, 0755)) {
         if (errno != EEXIST) {
-            fprintf(stderr, "Cannot create directory "OP_DRIVER_BASE": %s\n",
+            fprintf(stderr, "Cannot create directory " OP_DRIVER_BASE ": %s\n",
                     strerror(errno));
             return -1;
         }
     }
 
-    if (access(OP_DRIVER_BASE"/stats", F_OK)) {
-        if (system("mount -t oprofilefs nodev "OP_DRIVER_BASE)) {
+    if (access(OP_DRIVER_BASE "/stats", F_OK)) {
+        if (system("mount -t oprofilefs nodev " OP_DRIVER_BASE)) {
             return -1;
         }
     }
@@ -247,7 +247,7 @@ int setup_device(void)
 	return -1;
     }
     for (max_events = 0; max_events < MAX_EVENTS; max_events++) {
-	snprintf(buf, sizeof(buf), OP_DRIVER_BASE"/%d", max_events);
+	snprintf(buf, sizeof(buf), OP_DRIVER_BASE "/%d", max_events);
 	if (access(buf, F_OK) < 0)
 	    break;
     }
@@ -261,15 +261,15 @@ int setup_device(void)
 void setup_session_dir()
 {
     if (access(OP_DATA_DIR, F_OK) == 0)
-        system("rm -r "OP_DATA_DIR);
+        system("rm -r " OP_DATA_DIR);
 
     if (mkdir(OP_DATA_DIR, 0755)) {
         fprintf(stderr, "Cannot create directory \"%s\": %s\n",
                 OP_DATA_DIR, strerror(errno));
     }
-    if (mkdir(OP_DATA_DIR"/samples", 0755)) {
+    if (mkdir(OP_DATA_DIR "/samples", 0755)) {
         fprintf(stderr, "Cannot create directory \"%s\": %s\n",
-                OP_DATA_DIR"/samples", strerror(errno));
+                OP_DATA_DIR "/samples", strerror(errno));
     }
 }
 
@@ -292,7 +292,7 @@ int do_setup()
      * Kill the old daemon so that setup can be done more than once to achieve
      * the same effect as reset.
      */
-    int num = read_num(OP_DATA_DIR"/lock");
+    int num = read_num(OP_DATA_DIR "/lock");
     if (num >= 0) {
         printf("Terminating the old daemon...\n");
         kill(num, SIGTERM);
@@ -421,10 +421,10 @@ int echo_dev(const char* str, int val, const char* file, int counter)
     int fd;
     
     if (counter >= 0) {
-        snprintf(fullname, 512, OP_DRIVER_BASE"/%d/%s", counter, file);
+        snprintf(fullname, 512, OP_DRIVER_BASE "/%d/%s", counter, file);
     }
     else {
-        snprintf(fullname, 512, OP_DRIVER_BASE"/%s", file);
+        snprintf(fullname, 512, OP_DRIVER_BASE "/%s", file);
     }
     fd = open(fullname, O_WRONLY);
     if (fd<0) {
@@ -452,18 +452,18 @@ void do_status()
     printf("Driver directory: %s\n", OP_DRIVER_BASE);
     printf("Session directory: %s\n", OP_DATA_DIR);
     for (i = 0; i < max_events; i++) {
-        sprintf(fullname, OP_DRIVER_BASE"/%d/enabled", i);
+        sprintf(fullname, OP_DRIVER_BASE "/%d/enabled", i);
         num = read_num(fullname);
         if (num > 0) {
             printf("Counter %d:\n", i);
 
             /* event name */
-            sprintf(fullname, OP_DRIVER_BASE"/%d/event", i);
+            sprintf(fullname, OP_DRIVER_BASE "/%d/event", i);
             num = read_num(fullname);
             printf("    name: %s\n", find_event_name_from_id(num, CTR(i)));
 
             /* profile interval */
-            sprintf(fullname, OP_DRIVER_BASE"/%d/count", i);
+            sprintf(fullname, OP_DRIVER_BASE "/%d/count", i);
             num = read_num(fullname);
             printf("    count: %d\n", num);
         }
@@ -472,7 +472,7 @@ void do_status()
         }
     }
 
-    num = read_num(OP_DATA_DIR"/lock");
+    num = read_num(OP_DATA_DIR "/lock");
     if (num >= 0) {
         /* Still needs to check if this lock is left-over */
         sprintf(fullname, "/proc/%d", num);
@@ -484,16 +484,16 @@ void do_status()
         else {
 
             printf("oprofiled pid: %d\n", num);
-            num = read_num(OP_DRIVER_BASE"/enable");
+            num = read_num(OP_DRIVER_BASE "/enable");
 
             printf("profiler is%s running\n", num == 0 ? " not" : "");
 
-            DIR* dir = opendir(OP_DRIVER_BASE"/stats");
+            DIR* dir = opendir(OP_DRIVER_BASE "/stats");
             if (dir) {
                 for (struct dirent* dirent; !!(dirent = readdir(dir));) {
                     if (strlen(dirent->d_name) >= 4 && memcmp(dirent->d_name, "cpu", 3) == 0) {
                         char cpupath[256];
-                        strcpy(cpupath, OP_DRIVER_BASE"/stats/");
+                        strcpy(cpupath, OP_DRIVER_BASE "/stats/");
                         strcat(cpupath, dirent->d_name);
 
                         strcpy(fullname, cpupath);
@@ -520,7 +520,7 @@ void do_status()
                 closedir(dir);
             }
 
-            num = read_num(OP_DRIVER_BASE"/backtrace_depth");
+            num = read_num(OP_DRIVER_BASE "/backtrace_depth");
             printf("backtrace_depth: %u\n", num);
         }
     }
@@ -599,13 +599,13 @@ int main(int argc, char * const argv[])
                 break;
             case 'd':
             /* --dump */ {
-                int pid = read_num(OP_DATA_DIR"/lock");
+                int pid = read_num(OP_DATA_DIR "/lock");
                 echo_dev("1", 0, "dump", -1);
                 break;
             }
             /* --shutdown */
             case 'h': {
-                int pid = read_num(OP_DATA_DIR"/lock");
+                int pid = read_num(OP_DATA_DIR "/lock");
                 if (pid >= 0) {
                     kill(pid, SIGHUP); /* Politely ask the daemon to close files */
                     sleep(1);
@@ -674,7 +674,7 @@ int main(int argc, char * const argv[])
 
         strcpy(command, argv[0]);
         char* slash = strrchr(command, '/');
-        strcpy(slash ? slash + 1 : command, "oprofiled --session-dir="OP_DATA_DIR);
+        strcpy(slash ? slash + 1 : command, "oprofiled --session-dir=" OP_DATA_DIR);
 
 #if defined(__arm__) && !defined(WITH_ARM_V7_A)
         /* Since counter #3 can only handle CPU_CYCLES, check and shuffle the 
@@ -785,7 +785,7 @@ int main(int argc, char * const argv[])
 
     if (start) {
         echo_dev("1", 0, "enable", -1);
-        int num = read_num(OP_DATA_DIR"/lock");
+        int num = read_num(OP_DATA_DIR "/lock");
 
         if (num >= 0) {
             kill(num, SIGUSR1);
